@@ -29,11 +29,23 @@ Dcl-Proc EscapeMessage Export;
   End-Pi;
   Dcl-C QCPFMSG 'QCPFMSG   *LIBL';
   Dcl-Ds LocalError LikeDs(ERRC0100);
+  Dcl-S MessageText Char(240);
   
-  If (%parms < 2); 
+  // Check if only one parameter is passed 
+  If (%parms < 2);
+    // Use the Error parameter
     qmhsndpm(Error.ExceptionId: QCPFMSG: Error.ExceptionData: Error.BytesAvailable-16: '*ESCAPE': '*PGMBDY': 1: '': LocalError);
-  Else;
-    qmhsndpm('CPF9898': QCPFMSG: Text: %Len(%Trim(Text)): '*ESCAPE': '*PGMBDY': 1: '': LocalError);
+  Else; // Use the Text parameter, the Error parameter should be omitted
+    // Check if the Text ends with a dot (.)
+    If (%Subst(Text: %Len(%Trim(Text)): 1) = '.');
+      // Remove the trailing dot from the Text
+      MessageText = %Subst(Text: 1: %Len(%Trim(Text))-1);
+    Else;
+      // Use the Text without changes
+      MessageText = Text;
+    EndIf;
+    // Send the escape message
+    qmhsndpm('CPF9898': QCPFMSG: MessageText: %Len(%Trim(MessageText)): '*ESCAPE': '*PGMBDY': 1: '': LocalError);
   EndIf;
 End-Proc;
 
@@ -51,21 +63,29 @@ Dcl-Proc Lower Export;
   Dcl-S ch Uns(3);
   Dcl-S Ret Char(65535) Inz(*Blanks);
 
+  // Get the information of the 1st parameter
   ceedod(1: p2: p3: p4: p5: l1);
 
+  // If the length of the text is less than 1, return *blank
   If (l1 < 1);
     Return '';
   EndIf;
 
+  // Go through the text
   For i = 1 To l1;
+    // Get the character
     ch = MemVal(%Addr(Text) + i - 1);
+    // Convert to lower case
     ch = tolower(ch);
+    // Save the lower cased character into the returned text
     memcpy(%Addr(Ret) + i - 1: %Addr(ch): 1);
+    // Exit if the character is x'00'
     If (ch = 0);
       Leave;
     EndIf;
   EndFor;
 
+  // Return the lower cased text
   Return Ret;
 End-Proc;
 
@@ -125,20 +145,28 @@ Dcl-Proc Upper Export;
   Dcl-S ch Uns(3);
   Dcl-S Ret Char(65535) Inz(*Blanks);
 
+  // Get the information of the 1st parameter
   ceedod(1: p2: p3: p4: p5: l1);
 
+  // If the length of the text is less than 1, return *blank
   If (l1 < 1);
     Return '';
   EndIf;
 
+  // Go through the text
   For i = 1 To l1;
+    // Get the character
     ch = MemVal(%Addr(Text) + i - 1);
+    // Convert to upper case
     ch = toupper(ch);
+    // Save the upper cased character into the returned text
     memcpy(%Addr(Ret) + i - 1: %Addr(ch): 1);
+    // Exit if the character is x'00'
     If (ch = 0);
       Leave;
     EndIf;
   EndFor;
 
+  // Return the upper cased text
   Return Ret;
 End-Proc;

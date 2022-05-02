@@ -1,5 +1,15 @@
 **Free
 
+Dcl-C CHAR_CR x'0D'; // carriage return
+Dcl-C CHAR_LF x'25'; // line feed
+Dcl-C CHAR_NL x'15'; // new line
+
+// Program status data structure
+Dcl-Ds ProgramStatus Psds Qualified;
+  ExceptionId Char(7) Pos(40);
+  ExceptionText Char(80) Pos(91);
+End-Ds;
+
 // Format ERRC0100 for the error code parameter
 Dcl-Ds ERRC0100 Qualified Template;
   BytesProvided Int(10) Inz(%Size(ERRC0100));
@@ -24,6 +34,37 @@ Dcl-Pr ceedod ExtProc('CEEDOD');
   descinf1 Int(10);
   descinf2 Int(10);
   daalen Int(10);
+End-Pr;
+
+// Prototype to C "fclose" function
+Dcl-Pr fclose ExtProc('_C_IFS_fclose');
+  File Pointer Value;
+End-Pr;
+
+// Prototype to C "feof" function
+Dcl-Pr feof Int(10) Extproc('_C_IFS_feof');
+  File Pointer Value;
+End-Pr;
+
+// Prototype to C "fgets" function
+Dcl-Pr fgets Pointer ExtProc('_C_IFS_fgets');
+  Buffer Pointer Value;
+  BufferLen Uns(10) Value;
+  File Pointer Value;
+End-Pr;
+
+// Prototype to C "fopen" function
+Dcl-Pr fopen Pointer Extproc('_C_IFS_fopen');
+  Filename Pointer Value Options(*String);
+  Mode Pointer Value Options(*String);
+End-Pr;
+
+// Prototype to C "fwrite" function
+Dcl-Pr fwrite Int(10) ExtProc('_C_IFS_fwrite');
+  Buffer Pointer Value;
+  BufferLen Uns(10) Value;
+  Count Uns(10) Value;
+  File Pointer Value;
 End-Pr;
 
 // Prototype to C "memcpy" function
@@ -93,6 +134,10 @@ Dcl-Pr qwdrjobd ExtPgm('QWDRJOBD');
   FormatName Char(8) Const;
   QualifiedJobDescriptionName Char(20) Const;
   Error LikeDs(ERRC0100) Options(*Nopass);
+End-Pr;
+
+Dcl-Pr strlen Uns(10) ExtProc('strlen');
+  Text Pointer Value;
 End-Pr;
 
 // Prototype to C "tolower" function
