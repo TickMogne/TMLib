@@ -4,6 +4,24 @@ Ctl-Opt Nomain;
 
 /include TMApi_Inc.rpgle
 
+Dcl-Proc CreateUserSpace Export;
+  Dcl-Pi CreateUserSpace;
+    UserSpaceName Char(20) Const;
+    Error LikeDs(ERRC0100) Options(*nopass);
+  End-Pi;
+
+  quscrtus(UserSpaceName: '': 1: x'00': '*ALL': '': '*YES': Error);
+End-Proc;
+
+Dcl-Proc DeleteUserSpace Export;
+  Dcl-Pi DeleteUserSpace;
+    UserSpaceName Char(20) Const;
+    Error LikeDs(ERRC0100) Options(*nopass);
+  End-Pi;
+
+  qusdltus(UserSpaceName: Error);
+End-Proc;
+
 Dcl-Proc EscapeMessage Export;
   Dcl-Pi EscapeMessage;
     Error LikeDs(ERRC0100) Const Options(*Omit);

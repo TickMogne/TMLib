@@ -1,5 +1,15 @@
 **Free
 
+Dcl-Pr CreateUserSpace;
+  UserSpaceName Char(20) Const;
+  Error LikeDs(ERRC0100) Options(*nopass);
+End-Pr;
+
+Dcl-Pr DeleteUserSpace;
+  UserSpaceName Char(20) Const;
+  Error LikeDs(ERRC0100) Options(*nopass);
+End-Pr;
+
 Dcl-Pr EscapeMessage;
   Error LikeDs(ERRC0100) Const Options(*Omit);
   Text Char(240) Const Options(*Nopass:*Varsize);

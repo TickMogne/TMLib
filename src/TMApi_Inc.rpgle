@@ -2,7 +2,7 @@
 
 // Format ERRC0100 for the error code parameter
 Dcl-Ds ERRC0100 Qualified Template;
-  BytesProvided Int(10) Inz(%size(ERRC0100));
+  BytesProvided Int(10) Inz(%Size(ERRC0100));
   BytesAvailable Int(10);
   ExceptionId Char(7);
   *N Char(1);
@@ -33,6 +33,12 @@ Dcl-Pr memcpy Pointer ExtProc('memcpy');
   Count Uns(10) Value;
 End-Pr;
 
+// Execute Command (QCMDEXC) API
+Dcl-Pr qcmdexc ExtPgm('QCMDEXC');
+  Command Char(1) Const Options(*Varsize);
+  CommandLength Packed(15:5) Const;
+End-Pr;
+
 // Send Program Message (QMHSNDPM) API
 Dcl-Pr qmhsndpm ExtPgm('QMHSNDPM');
   MessageId Char(7) Const;
@@ -54,8 +60,8 @@ Dcl-Pr quscrtus ExtPgm('QUSCRTUS');
   InitialValue Char(1) Const;
   PublicAuthority Char(10) Const;
   TextDescription Char(50) Const;
-  Replace Char(10) Options(*nopass) Const;
-  Error LikeDs(ERRC0100) Options(*nopass);
+  Replace Char(10) Options(*Nopass) Const;
+  Error LikeDs(ERRC0100) Options(*Nopass);
 End-Pr;
 
 // Delete User Space (QUSDLTUS) API
