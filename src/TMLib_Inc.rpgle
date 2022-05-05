@@ -26,6 +26,12 @@ End-Pr;
 Dcl-Pr GetErrno Int(10);
 End-Pr;
 
+Dcl-Pr GetMessageText Char(2000);
+  MessageId Char(7) Const;
+  Data Char(1) Const Options(*Varsize);
+  DataLen Int(10) Const;
+End-Pr;
+
 Dcl-Pr HttpResponse OpDesc;
   Buffer Char(2000) Const Options(*Varsize);
 End-Pr;

@@ -95,6 +95,27 @@ Dcl-Proc GetErrno Export;
   return Errno;
 End-Proc;
 
+Dcl-Proc GetMessageText Export;
+  Dcl-Pi GetMessageText Char(2000);
+    MessageId Char(7) Const;
+    Data Char(1) Const Options(*Varsize);
+    DataLen Int(10) Const;
+  End-Pi;
+  Dcl-Ds RTVM0100 Len(2024) Qualified;
+    MessageLenRet Int(10) Pos(9);
+    Message Char(2000) Pos(25);
+  End-Ds;
+  Dcl-Ds Error LikeDs(ERRC0100);
+  Dcl-S Ret Char(2000) Inz(*Blanks);
+
+  qmhrtvm(RTVM0100: %Size(RTVM0100): 'RTVM0100': MessageId: 'QCPFMSG   *LIBL': Data: DataLen: '*YES': '*NO': Error);
+
+  memcpy(%Addr(Ret): %Addr(RTVM0100.Message): RTVM0100.MessageLenRet);
+
+  Return Ret;
+
+End-Proc;
+
 Dcl-Proc HttpResponse Export;
   Dcl-Pi HttpResponse OpDesc;
     Buffer Char(2000) Const Options(*Varsize);

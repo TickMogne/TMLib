@@ -127,6 +127,13 @@ Dcl-Pr lseek Int(10) ExtProc('lseek');
   Whence Int(10) Value;
 End-Pr;
 
+// Prototype to C "memcmp" function
+Dcl-Pr memcmp Int(10) ExtProc('memcmp');
+  Buffer1 Pointer Value;
+  Buffer2 Pointer Value;
+  Count Uns(10) Value;
+End-Pr;
+
 // Prototype to C "memcpy" function
 Dcl-Pr memcpy Pointer ExtProc('memcpy');
   Source Pointer Value;
@@ -155,6 +162,44 @@ Dcl-Pr qcmdexc ExtPgm('QCMDEXC');
   CommandLength Packed(15:5) Const;
 End-Pr;
 
+// List Database Relations (QDBLDBR) API
+Dcl-Pr qdbldbr ExtPgm('QDBLDBR');
+  QualifiedUserSpaceName Char(20) Const;
+  FormatName Char(8) Const;
+  QualifiedFileName Char(20) Const;
+  Member Char(10) Const;
+  RecordFormat Char(10) Const;
+  Error LikeDs(ERRC0100);
+End-Pr;
+
+// Retrieve Database File Description (QDBRTVFD) API
+Dcl-Pr qdbrtvfd ExtPgm('QDBRTVFD');
+  Receiver Char(1) Const Options(*Varsize);
+  ReceiverLength Int(10) Const;
+  QualifiedRetFileName Char(20) Const;
+  FormatName Char(8) Const;
+  QualifiedFileName Char(20) Const;
+  RecordFormat Char(10) Const;
+  Override Char(1) Const;
+  System Char(10) Const;
+  FormatType Char(10) Const;
+  Error LikeDs(ERRC0100);
+End-Pr;
+
+// Retrieve Message (QMHRTVM) API
+Dcl-Pr qmhrtvm ExtPgm('QMHRTVM');
+  Information Char(1) Const Options(*Varsize);
+  InformationLen Int(10) Const;
+  FormatName Char(8) Const;
+  MessageId Char(7) Const;
+  QualifiedMessageFileName Char(20) Const;
+  Data Char(1) Const Options(*Varsize);
+  DataLen Int(10) Const;
+  Replace Char(10) Const;
+  Control Char(10) Const;
+  Error LikeDs(ERRC0100);
+End-Pr;
+
 // Send Program Message (QMHSNDPM) API
 Dcl-Pr qmhsndpm ExtPgm('QMHSNDPM');
   MessageId Char(7) Const;
@@ -166,6 +211,14 @@ Dcl-Pr qmhsndpm ExtPgm('QMHSNDPM');
   CallStackCounter Int(10) Const;
   MessageKey Char(4) Const;
   Error LikeDs(ERRC0100);
+End-Pr;
+
+// Prototype to C "strcmp" function
+Dcl-Pr qsort ExtProc('qsort');
+  Base Pointer Value;
+  ItemCount Int(10) Value;
+  ItemSize Int(10) Value;
+  CompareProc Pointer(*Proc) Value;
 End-Pr;
 
 Dcl-Pr qtmhrdstin ExtProc('QtmhRdStin');
@@ -215,12 +268,23 @@ Dcl-Pr qusptrus ExtPgm('QUSPTRUS');
   Error LikeDs(ERRC0100) Options(*Nopass);  
 End-Pr;
 
+// Retrieve Job Information (QUSRJOBI) API
 Dcl-Pr qusrjobi ExtPgm('QUSRJOBI');
   Receiver Char(1) Const Options(*Varsize);
   ReceiverLen Int(10) Const;
   FormatName Char(8) Const;
   QualifiedJobName Char(26) Const;
   InternalJobId Char(16) Const;
+  Error LikeDs(ERRC0100) Options(*Nopass);
+End-Pr;
+
+// Retrieve Object Description (QUSROBJD) API
+Dcl-Pr qusrobjd ExtPgm('QUSROBJD');
+  Receiver Char(1) Const Options(*Varsize);
+  ReceiverLen Int(10) Const;
+  FormatName Char(8) Const;
+  QualifiedObjectName Char(26) Const;
+  ObjectType Char(10) Const;
   Error LikeDs(ERRC0100) Options(*Nopass);
 End-Pr;
 
