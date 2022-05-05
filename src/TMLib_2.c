@@ -2,28 +2,32 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <iconv.h>
 
 extern void *HttpRequestParse(char *ptr, long int len);
 void HttpUrlDecode(char *text);
 
 void *HttpRequestParse(char *ptr, long int len) {
   char *content_type, *ct, *k, *v, *r;
-  long int i, p, ks, kl, vs, vl, c, l;
+  long int i, p, ks, kl, vs, vl, c, l, ctl;
 
   c = 0;
   l = 4;
   r = (char *) malloc(4);
 
+  ctl = 0;
   ct = getenv("CONTENT_TYPE");
   if (ct) {
     content_type = (char *) malloc(strlen(ct)+1);
     strcpy(content_type, ct);
     for(i=0; content_type[i] != '\0'; i++)
       content_type[i] = tolower(content_type[i]);
+    for(; (content_type[ctl] != ';') && (content_type[ctl] != '\0'); ctl++);
+    ctl--;
   }
   else content_type = NULL;
 
-  if ((content_type == NULL) || (strcmp(content_type, "application/x-www-form-urlencoded") == 0)) {
+  if ((content_type == NULL) || (memcmp(content_type, "application/x-www-form-urlencoded", ctl) == 0)) {
     p = 0;
     if (strcmp(getenv("REQUEST_METHOD"), "GET") == 0) {
       for(; ptr[p] != '?' && ptr[p] != '\0'; p++);
@@ -81,17 +85,37 @@ void *HttpRequestParse(char *ptr, long int len) {
 }
 
 void HttpUrlDecode(char *text) {
-  int p, h, l;
+  int p, h, l, t;
   char hexdigits[17] = "0123456789ABCDEF";
+  iconv_t cvt;
+  char c1[32], c2[32];
+  unsigned int in, out;
+  char *from, *to;
 
-  for(p=0; text[p] != '\0'; p++) {
+  memset(c1, '0', 32);
+  memcpy(c1, "IBMCCSID", 8);
+  memcpy(&c1[8], "00819", 5);
+  memset(c2, '0', 32);
+  memcpy(c2, "IBMCCSID", 8);
+  memcpy(&c2[8], "00000", 5);
+  cvt = iconv_open(c2, c1);
+
+  for(p=0, t=0; text[p] != '\0'; p++, t++) {
     if (text[p] == '+')
-      text[p] = ' ';
+      text[t] = ' ';
     else if ((text[p] == '%') && (text[p+1] != '\0') && (text[p+2] != '\0')) {
       h = strchr(hexdigits, toupper(text[p+1])) - hexdigits;
       l = strchr(hexdigits, toupper(text[p+2])) - hexdigits;
-      text[p] = 16 * h + l;
+      text[t] = 16 * h + l;
+      from = &text[t];
+      in = 1;
+      to = &text[t];
+      iconv(cvt, &from, &in, &to, &out);
       p += 2;
     }
+    else text[t] = text[p];
   }
+  text[t] = '\0';
+
+  iconv_close(cvt);
 }

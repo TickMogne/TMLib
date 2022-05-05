@@ -70,10 +70,14 @@ Dcl-Proc Cmd001;
   Dcl-S Password Char(16);
   Dcl-S Token Char(32);
   Dcl-S Ok Ind Inz(*Off);
+  Dcl-S Text Char(10);
 
   // Get the request keys
   User = HttpRequestValue(RequestData: 'user');
   Password = HttpRequestValue(RequestData: 'password');
+
+  Text = HttpRequestValue(RequestData: 'text');
+  HttpResponse('Text = :' + Text + ':');
 
   // Check user + password - simple example
   If ((%Trim(User) = 'TEST') And (%Trim(Password) = 'TEST'));
