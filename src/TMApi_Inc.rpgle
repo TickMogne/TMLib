@@ -30,8 +30,14 @@ Dcl-C SEEK_END  2;
 
 // Program status data structure
 Dcl-Ds ProgramStatus Psds Qualified;
+  Proc Char(10) Pos(1);
   ExceptionId Char(7) Pos(40);
+  ProgramLibrary Char(10) Pos(81);
   ExceptionText Char(80) Pos(91);
+  Job Char(26) Pos(244);
+  JobName Char(10) Pos(244);
+  JobUser Char(10) Pos(254);
+  JobNumber Char(6) Pos(264);
 End-Ds;
 
 // Format ERRC0100 for the error code parameter
@@ -41,6 +47,25 @@ Dcl-Ds ERRC0100 Qualified Template;
   ExceptionId Char(7);
   *N Char(1);
   ExceptionData Char(240);
+End-Ds;
+
+// Trigger buffer sections
+Dcl-Ds TriggerBufferHeader_Ds Len(96) Qualified Template;
+  PhysicalFileName Char(10) Pos(1);
+  PhysicalFileLibrarName Char(10) Pos(11);
+  PhysicalFileMemberName Char(10) Pos(21);
+  TriggerEvent Char(1) Pos(31);
+  TriggerTime Char(1) Pos(32);
+  // ...
+  RelativeRecordNumber Int(10) Pos(41);
+  OriginalRecordOffset Int(10) Pos(49);
+  OriginalRecordLength Int(10) Pos(53);
+  OriginalRecordNullByteMapOffset Int(10) Pos(57);
+  OriginalRecordNullByteMapLength Int(10) Pos(61);
+  NewRecordOffset Int(10) Pos(65);
+  NewRecordLength Int(10) Pos(69);
+  NewRecordNullByteMapOffset Int(10) Pos(73);
+  NewRecordNullByteMapLength Int(10) Pos(77);
 End-Ds;
 
 // Generic user space header format 0100
@@ -97,6 +122,12 @@ End-Pr;
 Dcl-Pr fopen Pointer Extproc('_C_IFS_fopen');
   Filename Pointer Value Options(*String);
   Mode Pointer Value Options(*String);
+End-Pr;
+
+// Prototype to C "fputs" function
+Dcl-Pr fputs Int(10) ExtProc('_C_IFS_fputs');
+  Buffer Pointer Value Options(*String);
+  File Pointer Value;
 End-Pr;
 
 // Prototype to C "fread" function
@@ -295,6 +326,15 @@ Dcl-Pr qwdrjobd ExtPgm('QWDRJOBD');
   FormatName Char(8) Const;
   QualifiedJobDescriptionName Char(20) Const;
   Error LikeDs(ERRC0100) Options(*Nopass);
+End-Pr;
+
+Dcl-Pr qwvrcstk ExtPgm('QWVRCSTK');
+  Receiver Char(1) Options(*Varsize);
+  ReceiverLength Int(10) Const;
+  FormatName Char(8) Const;
+  JobIdInfo Char(1) Options(*Varsize);
+  JobIdInfoFormatName Char(8) Const;
+  Error LikeDs(ERRC0100);
 End-Pr;
 
 // Prototype to C "rand" function
