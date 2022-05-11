@@ -130,7 +130,7 @@ Dcl-Proc HttpResponse Export;
 
   ceedod(1: p2: p3: p4: p5: l1);
 
-  qtmhwrstdout(Buffer: l1: Error);
+  qtmhwrstout(Buffer: l1: Error);
 
 End-Proc;
 

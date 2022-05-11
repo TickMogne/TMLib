@@ -252,6 +252,7 @@ Dcl-Pr qsort ExtProc('qsort');
   CompareProc Pointer(*Proc) Value;
 End-Pr;
 
+// Read from Stdin (QtmhRdStin) API
 Dcl-Pr qtmhrdstin ExtProc('QtmhRdStin');
   Buffer Char(1) Const Options(*Varsize);
   BufferLen Uns(10) Const;
@@ -259,7 +260,8 @@ Dcl-Pr qtmhrdstin ExtProc('QtmhRdStin');
   Error LikeDs(ERRC0100) Const;
 End-Pr;
 
-Dcl-Pr qtmhwrstdout ExtProc('QtmhWrStout');
+// Write to Stdout (QtmhWrStout) API
+Dcl-Pr qtmhwrstout ExtProc('QtmhWrStout');
   Buffer Char(1) Const Options(*Varsize);
   BufferLen Uns(10) Const;
   Error LikeDs(ERRC0100) Const;
@@ -328,12 +330,29 @@ Dcl-Pr qwdrjobd ExtPgm('QWDRJOBD');
   Error LikeDs(ERRC0100) Options(*Nopass);
 End-Pr;
 
+// Retrieve Call Stack (QWVRCSTK) API
 Dcl-Pr qwvrcstk ExtPgm('QWVRCSTK');
   Receiver Char(1) Options(*Varsize);
   ReceiverLength Int(10) Const;
   FormatName Char(8) Const;
   JobIdInfo Char(1) Options(*Varsize);
   JobIdInfoFormatName Char(8) Const;
+  Error LikeDs(ERRC0100);
+End-Pr;
+
+// Change Server Information (QZLSCHSI) API
+Dcl-Pr qzlschsi ExtPgm('QZLSCHSI');
+  RequestVariable Char(1) Options(*Varsize) Const;
+  RequestVariableLength Int(10) Const;
+  FormatName Char(8) Const;
+  Error LikeDs(ERRC0100);
+End-Pr;
+
+// List Server Information (QZLSLSTI) API
+Dcl-Pr qzlslsti ExtPgm('QZLSLSTI');
+  QualifiedUserSpaceName Char(20) Const;
+  FormatName Char(8) Const;
+  InformationQualifier Char(15) Const;
   Error LikeDs(ERRC0100);
 End-Pr;
 
