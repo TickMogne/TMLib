@@ -189,7 +189,7 @@ End-Pr;
 
 // Execute Command (QCMDEXC) API
 Dcl-Pr qcmdexc ExtPgm('QCMDEXC');
-  Command Char(1) Const Options(*Varsize);
+  Command Char(65535) Const Options(*Varsize);
   CommandLength Packed(15:5) Const;
 End-Pr;
 

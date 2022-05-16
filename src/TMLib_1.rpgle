@@ -36,6 +36,31 @@ Dcl-Proc ConvertHexToByte Export;
   Return Ret;
 End-Proc;
 
+Dcl-Proc CreateError Export;
+  Dcl-Pi CreateError LikeDs(ERRC0100);
+    ExceptionId Char(7) Const;
+    ExceptionData Char(240) Options(*Varsize:*Nopass) Const;
+    ExceptionDataLength Int(10) Options(*Nopass) Const;    
+  End-Pi;
+  Dcl-Ds Error LikeDs(ERRC0100);
+
+  Error.ExceptionId = ExceptionId;
+
+  If (%parms > 1);
+    If (%parms > 2);
+      Error.BytesAvailable = 16 + ExceptionDataLength;
+    Else;
+      Error.BytesAvailable = 16 + %Len(%Trim(ExceptionData));
+    EndIf;
+    Error.ExceptionData = ExceptionData;
+  Else;
+    Error.BytesAvailable = 16;
+    Error.ExceptionData = *Blanks;
+  Endif;
+
+  Return Error;
+End-Proc;
+
 Dcl-Proc CreateUserSpace Export;
   Dcl-Pi CreateUserSpace;
     UserSpaceName Char(20) Const;
@@ -98,8 +123,8 @@ End-Proc;
 Dcl-Proc GetMessageText Export;
   Dcl-Pi GetMessageText Char(2000);
     MessageId Char(7) Const;
-    Data Char(1) Const Options(*Varsize);
-    DataLen Int(10) Const;
+    Data Char(1) Const Options(*Varsize:*Nopass);
+    DataLen Int(10) Const Options(*Nopass);
   End-Pi;
   Dcl-Ds RTVM0100 Len(2024) Qualified;
     MessageLenRet Int(10) Pos(9);
@@ -107,8 +132,21 @@ Dcl-Proc GetMessageText Export;
   End-Ds;
   Dcl-Ds Error LikeDs(ERRC0100);
   Dcl-S Ret Char(2000) Inz(*Blanks);
+  Dcl-S UsedData Char(65535);
+  Dcl-S UsedDataLen Int(10);
 
-  qmhrtvm(RTVM0100: %Size(RTVM0100): 'RTVM0100': MessageId: 'QCPFMSG   *LIBL': Data: DataLen: '*YES': '*NO': Error);
+  If (%Parms() = 1);
+    UsedData = '';
+    UsedDataLen = 0;
+  ElseIf (%Parms() = 2);
+    UsedData = Data;
+    UsedDataLen = %Len(%Trim(UsedData));
+  ElseIf
+    UsedData = Data;
+    UsedDataLen = DataLen;
+  EndIf;
+
+  qmhrtvm(RTVM0100: %Size(RTVM0100): 'RTVM0100': MessageId: 'QCPFMSG   *LIBL': UsedData: UsedDataLen: '*YES': '*NO': Error);
 
   memcpy(%Addr(Ret): %Addr(RTVM0100.Message): RTVM0100.MessageLenRet);
 
@@ -555,6 +593,34 @@ Dcl-Proc HttpTokenSetData Export;
   Return Ret;
 
 End-Proc;
+
+Dcl-Proc InfoMessage Export;
+  Dcl-Pi InfoMessage;
+    Error LikeDs(ERRC0100) Const Options(*Omit);
+    Text Char(240) Const Options(*Nopass:*Varsize);
+  End-Pi;
+  Dcl-C QCPFMSG 'QCPFMSG   *LIBL';
+  Dcl-Ds LocalError LikeDs(ERRC0100);
+  Dcl-S MessageText Char(240);
+  
+  // Check if only one parameter is passed 
+  If (%parms < 2);
+    // Use the Error parameter
+    qmhsndpm(Error.ExceptionId: QCPFMSG: Error.ExceptionData: Error.BytesAvailable-16: '*INFO': '*PGMBDY': 1: '': LocalError);
+  Else; // Use the Text parameter, the Error parameter should be omitted
+    // Check if the Text ends with a dot (.)
+    If (%Subst(Text: %Len(%Trim(Text)): 1) = '.');
+      // Remove the trailing dot from the Text
+      MessageText = %Subst(Text: 1: %Len(%Trim(Text))-1);
+    Else;
+      // Use the Text without changes
+      MessageText = Text;
+    EndIf;
+    // Send the info message
+    qmhsndpm('CPF9898': QCPFMSG: MessageText: %Len(%Trim(MessageText)): '*INFO': '*PGMBDY': 1: '': LocalError);
+  EndIf;
+End-Proc;
+
 
 Dcl-Proc Lower Export;
   Dcl-Pi Lower Char(65535) OpDesc;

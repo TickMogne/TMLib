@@ -8,6 +8,12 @@ Dcl-Pr ConvertHexToByte Uns(3);
   Hex Char(2) Const;
 End-Pr;
 
+Dcl-Pr CreateError LikeDs(ERRC0100);
+  ExceptionId Char(7) Const;
+  ExceptionData Char(240) Options(*Varsize:*Nopass) Const;
+  ExceptionDataLength INt(10) Options(*Nopass) Const;
+End-Pr;
+
 Dcl-Pr CreateUserSpace;
   UserSpaceName Char(20) Const;
   Error LikeDs(ERRC0100) Options(*nopass);
@@ -28,8 +34,8 @@ End-Pr;
 
 Dcl-Pr GetMessageText Char(2000);
   MessageId Char(7) Const;
-  Data Char(1) Const Options(*Varsize);
-  DataLen Int(10) Const;
+  Data Char(1) Const Options(*Varsize:*Nopass);
+  DataLen Int(10) Const Options(*Nopass);
 End-Pr;
 
 Dcl-Pr HttpResponse OpDesc;
@@ -74,6 +80,11 @@ Dcl-Pr HttpTokenSetData Ind;
   Token Char(32) Const;
   DataName Char(128) Const Options(*Varsize);
   DataValue Char(8192) Const Options(*Varsize);
+End-Pr;
+
+Dcl-Pr InfoMessage;
+  Error LikeDs(ERRC0100) Const Options(*Omit);
+  Text Char(240) Const Options(*Nopass:*Varsize);
 End-Pr;
 
 Dcl-Pr Lower Char(65535) OpDesc;
