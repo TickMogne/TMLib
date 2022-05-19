@@ -28,6 +28,6 @@ Module 1 - Codes in fully-free RPGLE language.
 
 Module 2 - Codes in C language.
 
-### src/TMLib_Make.c
+### src/TMLib_Make.clle
 
 Program to build the TMLIB_M binding directory.
