@@ -285,6 +285,16 @@ Dcl-Pr qusdltus ExtPgm('QUSDLTUS');
   Error LikeDs(ERRC0100);
 End-Pr;
 
+// List Database File Members (QUSLMBR) API
+Dcl-Pr quslmbr ExtPgm('QUSLMBR');
+  QualifiedUserSpaceName Char(20) Const;
+  FormatName Char(8) Const;
+  QualifiedFileName Char(20) Const;
+  Member Char(10) Const;
+  Override Char(1) Const;
+  Error LikeDs(ERRC0100);  
+End-Pr;
+
 // List Objects (QUSLOBJ) API
 Dcl-Pr quslobj ExtPgm('QUSLOBJ');
   QualifiedUserSpaceName Char(20) Const;
@@ -376,6 +386,12 @@ End-Pr;
 // Prototype to C "strlen" function
 Dcl-Pr strlen Uns(10) ExtProc('strlen');
   Text Pointer Value;
+End-Pr;
+
+// Prototype to C "strstr" function
+Dcl-Pr strstr Pointer ExtProc('strstr');
+  Text1 Pointer Value;
+  Text2 Pointer Value;
 End-Pr;
 
 // Prototype to C "tolower" function
