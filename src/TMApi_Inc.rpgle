@@ -49,6 +49,14 @@ Dcl-Ds ERRC0100 Qualified Template;
   ExceptionData Char(240);
 End-Ds;
 
+// Open list information format
+Dcl-Ds ListInformation_Ds Len(80) Qualified Template;
+  TotalRecords Int(10) Pos(1);
+  RecordsReturned Int(10) Pos(5);
+  Handle Char(4) Pos(9);
+  RecordLength Int(10) Pos(13);
+End-Ds;
+
 // Trigger buffer sections
 Dcl-Ds TriggerBufferHeader_Ds Len(96) Qualified Template;
   PhysicalFileName Char(10) Pos(1);
@@ -217,6 +225,50 @@ Dcl-Pr qdbrtvfd ExtPgm('QDBRTVFD');
   Error LikeDs(ERRC0100);
 End-Pr;
 
+// Close List (QGYCLST) API
+Dcl-Pr qgyclst ExtPgm('QGYCLST');
+  Handle Char(4) Const;
+  Error LikeDs(ERRC0100);  
+End-Pr;
+
+// Get List Entries (QGYGTLE) API
+Dcl-Pr qgygtle ExtPgm('QGYGTLE');
+  Receiver Char(1) Const Options(*Varsize);
+  ReceiverLength Int(10) Const;
+  RequestHandle Char(4) Const;
+  ListInformation LikeDs(ListInformation_Ds);
+  NumberOfRecordsToReturn Int(10) Const;
+  StartingRecord Int(10) Const;
+  Error LikeDs(ERRC0100);  
+End-Pr;
+
+// Open List of Messages (QGYOLMSG) API
+Dcl-Pr qgyolmsg ExtPgm('QGYOLMSG');
+  Receiver Char(1) Options(*Varsize);
+  ReceiverLength Int(10) Const;
+  ListInformation LikeDs(ListInformation_Ds);
+  NumberOfRecordsToReturn Int(10) Const;
+  SortInformation Char(1) Const;
+  SelectionInformation Char(8000) Options(*Varsize) Const;
+  SizeOfSelectionInformation Int(10) Const;
+  QueueInformation Char(21) Const;
+  MessageQueuesUsed Char(44);
+  Error LikeDs(ERRC0100); 
+End-Pr;
+
+// Open List of History Log Messages (QMHOLHST) API
+Dcl-Pr qmholhst ExtPgm('QMHOLHST');
+  Receiver Char(1) Const Options(*Varsize);
+  ReceiverLength Int(10) Const;
+  FormatName Char(8) Const;
+  ListInformation LikeDs(ListInformation_Ds);
+  NumberOfRecordsToReturn Int(10) Const;
+  SelectionInformation Char(65535) Const;
+  CCSID Int(10) Const;
+  TimeZone Char(10) Const;
+  Error LikeDs(ERRC0100);
+End-Pr;
+
 // Retrieve Message (QMHRTVM) API
 Dcl-Pr qmhrtvm ExtPgm('QMHRTVM');
   Information Char(1) Const Options(*Varsize);
@@ -250,6 +302,25 @@ Dcl-Pr qsort ExtProc('qsort');
   ItemCount Int(10) Value;
   ItemSize Int(10) Value;
   CompareProc Pointer(*Proc) Value;
+End-Pr;
+
+// Retrieve Output Queue Information (QSPROUTQ) API
+Dcl-Pr qsproutq ExtPgm('QSPROUTQ');
+  Receiver Char(1) Const Options(*Varsize);
+  ReceiverLen Int(10) Const;
+  FormatName Char(8) Const;
+  QualifiedOutputQueueName Char(20) Const;
+  Error LikeDs(ERRC0100) Options(*Nopass);
+End-Pr;
+
+// Get Environment Variable (QtmhGetEnv) API
+Dcl-Pr qtmhgetenv ExtProc('QtmhGetEnv');
+  Receiver Char(1) Const Options(*Varsize);
+  ReceiverLen Int(10) Const;
+  ReceiverLenRet Int(10) Const;
+  VariableName Char(128) Const Options(*Varsize);
+  VariableNameLen Int(10) Const;
+  Error LikeDs(ERRC0100) Options(*Nopass);
 End-Pr;
 
 // Read from Stdin (QtmhRdStin) API
@@ -295,6 +366,18 @@ Dcl-Pr quslmbr ExtPgm('QUSLMBR');
   Error LikeDs(ERRC0100);  
 End-Pr;
 
+// List Job (QUSLJOB) API
+Dcl-Pr qusljob ExtPgm('QUSLJOB');
+  QualifiedUserSpaceName Char(20) Const;
+  FormatName Char(8) Const;
+  QualifiedJobName Char(26) Const;
+  Status Char(10) Const;
+  Error LikeDs(ERRC0100);  
+  JobType Char(1) Const Options(*NoPass);
+  NumberOfFields Int(10) Const Options(*NoPass);
+  KeysOfFields Char(4) Const Options(*NoPass:*Varsize);
+End-Pr;
+
 // List Objects (QUSLOBJ) API
 Dcl-Pr quslobj ExtPgm('QUSLOBJ');
   QualifiedUserSpaceName Char(20) Const;
@@ -331,6 +414,22 @@ Dcl-Pr qusrobjd ExtPgm('QUSROBJD');
   Error LikeDs(ERRC0100) Options(*Nopass);
 End-Pr;
 
+// List Active Subsystems (QWCLASBS) API
+Dcl-Pr qwclasbs ExtPgm('QWCLASBS');
+  QualifiedUserSpaceName Char(20) Const;
+  FormatName Char(8) Const;
+  Error LikeDs(ERRC0100) Options(*Nopass);
+End-Pr;
+
+// Retrieve System Status (QWCRSSTS) API
+Dcl-Pr qwcrssts ExtPgm('QWCRSSTS');
+  Receiver Char(1) Options(*Varsize);
+  ReceiverLength Int(10) Const;
+  FormatName Char(8) Const;
+  ResetStatusStatistic Char(10) Const;
+  Error LikeDs(ERRC0100) Options(*Nopass);
+End-Pr;
+
 // Retrieve Job Description Information (QWDRJOBD) API
 Dcl-Pr qwdrjobd ExtPgm('QWDRJOBD');
   Receiver Char(1) Options(*Varsize);
@@ -338,6 +437,16 @@ Dcl-Pr qwdrjobd ExtPgm('QWDRJOBD');
   FormatName Char(8) Const;
   QualifiedJobDescriptionName Char(20) Const;
   Error LikeDs(ERRC0100) Options(*Nopass);
+End-Pr;
+
+// Retrieve Subsystem Information (QWDRSBSD) API
+Dcl-Pr qwdrsbsd ExtPgm('QWDRSBSD');
+  Receiver Char(1) Options(*Varsize);
+  ReceiverLength Int(10) Const;
+  FormatName Char(8) Const;
+  QualifiedSubsystemName Char(2000) Options(*Varsize) Const;
+  Error LikeDs(ERRC0100);
+  NumberOfQualifiedSubsystemName Int(10) Options(*Nopass);
 End-Pr;
 
 // Retrieve Call Stack (QWVRCSTK) API

@@ -154,6 +154,20 @@ Dcl-Proc GetMessageText Export;
 
 End-Proc;
 
+Dcl-Proc HttpGetEnv Export;
+  Dcl-Pi HttpGetEnv Char(8192);
+    VariableName Char(128) Const Options(*Varsize);
+  End-Pi;
+  Dcl-Ds Error LikeDs(ERRC0100);
+  Dcl-S Value Char(8192);
+  Dcl-S ValueLen Int(10);
+
+  qtmhgetenv(Value: 8192: ValueLen: VariableName: %Len(%Trim(VariableName)): Error);
+  Value = %Subst(Value: 1: ValueLen);
+
+  Return Value;
+End-Proc;
+
 Dcl-Proc HttpResponse Export;
   Dcl-Pi HttpResponse OpDesc;
     Buffer Char(2000) Const Options(*Varsize);

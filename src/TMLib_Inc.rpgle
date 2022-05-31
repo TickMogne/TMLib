@@ -38,6 +38,10 @@ Dcl-Pr GetMessageText Char(2000);
   DataLen Int(10) Const Options(*Nopass);
 End-Pr;
 
+Dcl-Pr HttpGetEnv Char(8192);
+  VariableName Char(128) Const Options(*Varsize);
+End-Pr;
+
 Dcl-Pr HttpResponse OpDesc;
   Buffer Char(2000) Const Options(*Varsize);
 End-Pr;
