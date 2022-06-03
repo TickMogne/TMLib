@@ -38,6 +38,7 @@ Dcl-Ds ProgramStatus Psds Qualified;
   JobName Char(10) Pos(244);
   JobUser Char(10) Pos(254);
   JobNumber Char(6) Pos(264);
+  CurrentUser Char(10) Pos(358);
 End-Ds;
 
 // Format ERRC0100 for the error code parameter
@@ -83,6 +84,53 @@ Dcl-Ds UserSpaceHeader_Ds Len(192) Qualified Template;
   SizeOfEntry Int(10) Pos(137);
 End-Ds;
 
+// Prototype to C "dirent" struct
+Dcl-Ds Dirent_Ds Qualified Template;
+  *N Char(16);
+  FileNumberGenerationId Int(10);
+  FileNumber Int(10);
+  DirentLength Int(10);
+  *N Int(10);
+  *N Char(8);
+  NlsInformation Char(12);
+  NameLength Int(10);
+  Name Char(256);
+End-Ds;
+
+// Prototype to C "stat" struct
+Dcl-Ds Stat_Ds Qualified Template;
+  *N Int(10);
+  *N Int(10);
+  *N Int(5);
+  *N Char(2);
+  UserId Int(10);
+  GroupId Int(10);
+  Size Int(10);
+  AccessedTime Int(10);
+  ModifiedTime Int(10);
+  ChangedTime Int(10);
+  *N Int(10);
+  *N Int(10);
+  *N Int(10);
+  ObjectType Char(12);
+  CodePage Int(5);
+  *N Char(62);
+  *N Int(10);
+End-Ds;
+
+// Prototype to C "tm" struct
+Dcl-Ds Tm_Ds Qualified Template;
+  Sec Int(10);
+  Min Int(10);
+  Hour Int(10);
+  MDay Int(10);
+  Mon Int(10);
+  Year Int(10);
+  WDay Int(10);
+  YDay Int(10);
+  IsDst Int(10);
+End-Ds;
+
 // Prototype to C "access" function
 Dcl-Pr access Int(10) ExtProc('access');
   FileName Pointer Value Options(*String);
@@ -107,6 +155,11 @@ End-Pr;
 // Prototype to C "close" function
 Dcl-Pr close ExtProc('close');
   FileDescriptor Int(10) Value;
+End-Pr;
+
+// Prototype to C "closedir" function
+Dcl-Pr closedir Int(10) ExtProc('closedir');
+  Dir Pointer Value;
 End-Pr;
 
 // Prototype to C "fclose" function
@@ -155,8 +208,13 @@ Dcl-Pr fwrite Int(10) ExtProc('_C_IFS_fwrite');
 End-Pr;
 
 // Prototype to C "getenv" function
-Dcl-Pr getenv Pointer Extproc('getenv');
+Dcl-Pr getenv Pointer ExtProc('getenv');
   Name Pointer Value Options(*String);
+End-Pr;
+
+// Prototype to C "localtime" function
+Dcl-Pr localtime Pointer ExtProc('localtime');
+  TimeValue Pointer Value;
 End-Pr;
 
 // Prototype to C "lseek" function
@@ -188,12 +246,17 @@ Dcl-Pr memset Pointer ExtProc('memset');
 End-Pr;
 
 // Prototype to C "open" function
-Dcl-Pr open Int(10) Extproc('open');
+Dcl-Pr open Int(10) ExtProc('open');
   FileName Pointer Value Options(*String);
   Flags Int(10) Value;
   Mode Uns(10) Value Options(*Nopass);
   CodePage Uns(10) Value Options(*Nopass);
-End-Pr;  
+End-Pr;
+
+// Prototype to C "opendir" function
+Dcl-Pr opendir Pointer ExtProc('opendir');
+  DirName Pointer Value Options(*String);
+End-Pr;
 
 // Execute Command (QCMDEXC) API
 Dcl-Pr qcmdexc ExtPgm('QCMDEXC');
@@ -486,10 +549,29 @@ Dcl-Pr read Int(10) Extproc('read');
   Lenght Uns(10) Value;
 End-Pr;
 
+// Prototype to C "readdir" function
+Dcl-Pr readdir Pointer ExtProc('readdir');
+  Dir Pointer Value;
+End-Pr;
+
+// Prototype to C "stat" function
+Dcl-Pr stat Int(10) ExtProc('stat');
+  Path Pointer Value Options(*String);
+  Buffer Pointer Value;
+End-Pr;
+
 // Prototype to C "strcmp" function
 Dcl-Pr strcmp Int(10) ExtProc('strcmp');
   Text1 Pointer Value;
   Text2 Pointer Value;
+End-Pr;
+
+// Prototype to C "strftime" function
+Dcl-Pr strftime Int(10) ExtProc('strftime');
+  Buffer Pointer Value Options(*String);
+  BufferLength Int(10) Value;
+  Format Pointer Value Options(*String);
+  Tm Pointer Value;
 End-Pr;
 
 // Prototype to C "strlen" function
