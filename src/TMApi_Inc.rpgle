@@ -39,6 +39,7 @@ Dcl-Ds ProgramStatus Psds Qualified;
   JobUser Char(10) Pos(254);
   JobNumber Char(6) Pos(264);
   CurrentUser Char(10) Pos(358);
+  SystemName Char(8) Pos(396); // started with 7.3
 End-Ds;
 
 // Format ERRC0100 for the error code parameter
@@ -359,6 +360,17 @@ Dcl-Pr qmhsndpm ExtPgm('QMHSNDPM');
   Error LikeDs(ERRC0100);
 End-Pr;
 
+// Prototype to C "Qp0lGetAttr" function
+Dcl-Pr qp0lgetattr Int(10) ExtProc('Qp0lGetAttr');
+  PathName Pointer Value;
+  AttrArray Pointer Value;
+  Buffer Pointer Value;
+  BufferSizeProvided Uns(10) Value;
+  BufferSizeNeeded Pointer Value;
+  BufferBytesReturned Pointer Value;
+  FollowSymlink Uns(10) Value;
+End-Pr;
+
 // Prototype to C "strcmp" function
 Dcl-Pr qsort ExtProc('qsort');
   Base Pointer Value;
@@ -484,6 +496,15 @@ Dcl-Pr qwclasbs ExtPgm('QWCLASBS');
   Error LikeDs(ERRC0100) Options(*Nopass);
 End-Pr;
 
+// Retrieve Network Attributes (QWCRNETA) API
+Dcl-Pr qwcrneta ExtPgm('QWCRNETA');
+  Receiver Char(1) Options(*Varsize);
+  ReceiverLength Int(10) Const;
+  NumberOfAttributes Int(10) Const;
+  ArrayOfAttributes Char(2000) Const Options(*Varsize);
+  Error LikeDs(ERRC0100);
+End-Pr;
+
 // Retrieve System Status (QWCRSSTS) API
 Dcl-Pr qwcrssts ExtPgm('QWCRSSTS');
   Receiver Char(1) Options(*Varsize);
@@ -491,6 +512,15 @@ Dcl-Pr qwcrssts ExtPgm('QWCRSSTS');
   FormatName Char(8) Const;
   ResetStatusStatistic Char(10) Const;
   Error LikeDs(ERRC0100) Options(*Nopass);
+End-Pr;
+
+// Retrieve System Values (QWCRSVAL) API
+Dcl-Pr qwcrsval ExtPgm('QWCRSVAL');
+  Receiver Char(1) Options(*Varsize);
+  ReceiverLength Int(10) Const;
+  NumberOfSystemValues Int(10) Const;
+  ArrayOfSystemValues Char(2000) Const Options(*Varsize);
+  Error LikeDs(ERRC0100);
 End-Pr;
 
 // Retrieve Job Description Information (QWDRJOBD) API
