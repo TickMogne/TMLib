@@ -22,7 +22,6 @@ Dcl-Proc ConvertByteToHex Export;
   Return Ret;
 End-Proc;
 
-
 Dcl-Proc ConvertHexToByte Export;
   Dcl-Pi ConvertHexToByte Uns(3);
     Hex Char(2) Const;
@@ -75,8 +74,12 @@ Dcl-Proc DeleteUserSpace Export;
     UserSpaceName Char(20) Const;
     Error LikeDs(ERRC0100) Options(*nopass);
   End-Pi;
+  Dcl-Ds Error2 LikeDs(ERRC0100);
 
-  qusdltus(UserSpaceName: Error);
+  qusdltus(UserSpaceName: Error2);
+  If (%parms > 1);
+    Error = Error2;
+  EndIf;
 End-Proc;
 
 Dcl-Proc EscapeMessage Export;

@@ -320,6 +320,16 @@ Dcl-Pr qgyolmsg ExtPgm('QGYOLMSG');
   Error LikeDs(ERRC0100); 
 End-Pr;
 
+// Retrieve Journal Information (QjoRetrieveJournalInformation) API
+Dcl-Pr QjoRetrieveJournalInformation ExtProc('QjoRetrieveJournalInformation');
+  Receiver Char(1) Const Options(*Varsize);
+  ReceiverLength Int(10) Const;
+  QualifiedJournalName Char(20) Const;
+  FormatName Char(8) Const;
+  InformationToRetrieve Char(1) Const Options(*Varsize);
+  Error LikeDs(ERRC0100);
+End-Pr;
+
 // Open List of History Log Messages (QMHOLHST) API
 Dcl-Pr qmholhst ExtPgm('QMHOLHST');
   Receiver Char(1) Const Options(*Varsize);
@@ -345,6 +355,9 @@ Dcl-Pr qmhrtvm ExtPgm('QMHRTVM');
   Replace Char(10) Const;
   Control Char(10) Const;
   Error LikeDs(ERRC0100);
+  RetrieveOption Char(10) Const Options(*Nopass);
+  CCSIDToConvert Int(10) Const Options(*Nopass);
+  CCSIDOfReplacementData Int(10) Const Options(*Nopass);
 End-Pr;
 
 // Send Program Message (QMHSNDPM) API
@@ -385,6 +398,17 @@ Dcl-Pr qsproutq ExtPgm('QSPROUTQ');
   ReceiverLen Int(10) Const;
   FormatName Char(8) Const;
   QualifiedOutputQueueName Char(20) Const;
+  Error LikeDs(ERRC0100) Options(*Nopass);
+End-Pr;
+
+// Retrieve User Authority to Object (QSYRUSRA) API
+Dcl-Pr qsyrusra ExtPgm('QSYRUSRA');
+  Receiver Char(1) Const Options(*Varsize);
+  ReceiverLen Int(10) Const;
+  FormatName Char(8) Const;
+  UserName Char(10) Const;
+  QualifiedObjectName Char(20) Const;
+  ObjectType Char(10) Const;
   Error LikeDs(ERRC0100) Options(*Nopass);
 End-Pr;
 
