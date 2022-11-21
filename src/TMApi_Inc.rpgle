@@ -360,6 +360,20 @@ Dcl-Pr qmhrtvm ExtPgm('QMHRTVM');
   CCSIDOfReplacementData Int(10) Const Options(*Nopass);
 End-Pr;
 
+// Send Nonprogram Message (QMHSNDM) API
+Dcl-Pr qmhsndm ExtPgm('QMHSNDM');
+  MessageId Char(7) Const;
+  QualifiedMessageFileName Char(20) Const;
+  MessageData Char(240) Const;
+  MessageDataLength Int(10) Const;
+  MessageType Char(10) Const;
+  ListOfQualifiedMessageQueueNames Char(1000) Options(*Varsize) Const;
+  NumberofMessageQueues Int(10) Const;
+  QualifiedReplyMessageQueueName Char(20) Const;
+  MessageKey Char(4) Const;
+  Error LikeDs(ERRC0100);
+End-Pr;
+
 // Send Program Message (QMHSNDPM) API
 Dcl-Pr qmhsndpm ExtPgm('QMHSNDPM');
   MessageId Char(7) Const;
