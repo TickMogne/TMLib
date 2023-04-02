@@ -1,5 +1,18 @@
 **Free
 
+Dcl-Pr CenterText Char(2000);
+  Text Char(2000) Const Options(*Varsize);
+  Length Int(10) Const;
+End-Pr; 
+
+Dcl-Pr ChangeDataArea;
+  QualifiedDataAreaName Char(20) Const;
+  Start Int(10) Const;
+  Length Int(10) Const;
+  Data Char(2000) Const Options(*Varsize);    
+  Error LikeDs(ERRC0100);
+End-Pr;
+
 Dcl-Pr ConvertByteToHex Char(2);
   Byte Uns(3) Const;
 End-Pr;
@@ -11,8 +24,14 @@ End-Pr;
 Dcl-Pr CreateError LikeDs(ERRC0100);
   ExceptionId Char(7) Const;
   ExceptionData Char(240) Options(*Varsize:*Nopass) Const;
-  ExceptionDataLength INt(10) Options(*Nopass) Const;
+  ExceptionDataLength Int(10) Options(*Nopass) Const;
 End-Pr;
+
+Dcl-Pr CreateQualifiedTempFileName Char(20);
+End-Pr;
+
+Dcl-Pr CreateTempFileName Char(16);
+End-Pr; 
 
 Dcl-Pr CreateUserSpace;
   UserSpaceName Char(20) Const;
@@ -29,6 +48,11 @@ Dcl-Pr EscapeMessage;
   Text Char(240) Const Options(*Nopass:*Varsize);
 End-Pr;
 
+Dcl-Pr ExecuteCommand;
+  Command Char(65535) Const Options(*Varsize);
+  Error LikeDs(ERRC0100);
+End-Pr;
+
 Dcl-Pr GetErrno Int(10);
 End-Pr;
 
@@ -36,6 +60,7 @@ Dcl-Pr GetMessageText Char(2000);
   MessageId Char(7) Const;
   Data Char(1) Const Options(*Varsize:*Nopass);
   DataLen Int(10) Const Options(*Nopass);
+  MessageFile Char(20) Const Options(*Nopass);
 End-Pr;
 
 Dcl-Pr HttpGetEnv Char(8192);
@@ -103,6 +128,13 @@ End-Pr;
 Dcl-Pr MemValChar Char(1);
   Address Pointer Const;
   ZeroIndex Int(10) Const Options(*Nopass);
+End-Pr;
+
+Dcl-Pr RetrieveDataArea Char(2000);
+  QualifiedDataAreaName Char(20) Const;
+  Start Int(10) Const;
+  Length Int(10) Const;  
+  Error LikeDs(ERRC0100);
 End-Pr;
 
 Dcl-Pr Upper Char(65535) OpDesc;

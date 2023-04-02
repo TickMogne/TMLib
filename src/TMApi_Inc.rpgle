@@ -297,7 +297,7 @@ End-Pr;
 
 // Get List Entries (QGYGTLE) API
 Dcl-Pr qgygtle ExtPgm('QGYGTLE');
-  Receiver Char(1) Const Options(*Varsize);
+  Receiver Char(20000) Const Options(*Varsize);
   ReceiverLength Int(10) Const;
   RequestHandle Char(4) Const;
   ListInformation LikeDs(ListInformation_Ds);
@@ -306,18 +306,51 @@ Dcl-Pr qgygtle ExtPgm('QGYGTLE');
   Error LikeDs(ERRC0100);  
 End-Pr;
 
+// Open List of Jobs (QGYOLJOB) API
+Dcl-Pr qgyoljob ExtPgm('QGYOLJOB');
+  Receiver Char(1) Options(*Varsize);
+  ReceiverLength Int(10) Const;
+  FormatName Char(8) Const;
+  VariableDefinition Char(1) Options(*Varsize);
+  VariableDefinitionLength Int(10) Const;
+  ListInformation LikeDs(ListInformation_Ds);
+  NumberOfRecordsToReturn Int(10) Const;
+  SortInformation Char(1) Const Options(*Varsize);
+  SelectionInformation Char(8000) Options(*Varsize) Const;
+  SizeOfSelectionInformation Int(10) Const;
+  NumberOfKeyedFieldsToReturn Int(10) Const;
+  KeyFieldsToReturn Int(10) Dim(32) Const;
+  Error LikeDs(ERRC0100); 
+End-Pr;
+
 // Open List of Messages (QGYOLMSG) API
 Dcl-Pr qgyolmsg ExtPgm('QGYOLMSG');
   Receiver Char(1) Options(*Varsize);
   ReceiverLength Int(10) Const;
   ListInformation LikeDs(ListInformation_Ds);
   NumberOfRecordsToReturn Int(10) Const;
-  SortInformation Char(1) Const;
+  SortInformation Char(1) Const Options(*Varsize);
   SelectionInformation Char(8000) Options(*Varsize) Const;
   SizeOfSelectionInformation Int(10) Const;
   QueueInformation Char(21) Const;
   MessageQueuesUsed Char(44);
   Error LikeDs(ERRC0100); 
+End-Pr;
+
+// Open List of Objects (QGYOLOBJ) API
+Dcl-Pr qgyolobj ExtPgm('QGYOLOBJ');
+  Receiver Char(1) Options(*Varsize);
+  ReceiverLength Int(10) Const;
+  ListInformation LikeDs(ListInformation_Ds);
+  NumberOfRecordsToReturn Int(10) Const;
+  SortInformation Char(1) Const Options(*Varsize);
+  ObjectNameAndLibrary Char(20) Const;
+  ObjectType Char(10) Const;
+  AuthorityControl Char(1) Const Options(*Varsize);
+  SelectionControl Char(1) Const Options(*Varsize);
+  NumberOfKeyedFieldsToReturn Int(10) Const;
+  KeyFieldsToReturn Int(10) Dim(32) Const;
+  Error LikeDs(ERRC0100) Const; 
 End-Pr;
 
 // Retrieve Journal Information (QjoRetrieveJournalInformation) API
@@ -327,6 +360,16 @@ Dcl-Pr QjoRetrieveJournalInformation ExtProc('QjoRetrieveJournalInformation');
   QualifiedJournalName Char(20) Const;
   FormatName Char(8) Const;
   InformationToRetrieve Char(1) Const Options(*Varsize);
+  Error LikeDs(ERRC0100);
+End-Pr;
+
+// List Job Log Messages (QMHLJOBL) API
+Dcl-Pr qmhljobl ExtPgm('QMHLJOBL');
+  QualifiedUserSpaceName Char(20) Const;
+  FormatName Char(8) Const;
+  MessageSelectionInformation Char(65535) Const Options(*Varsize);
+  MessageSelectionInformation Int(10) Const;
+  FormatName Char(8) Const;
   Error LikeDs(ERRC0100);
 End-Pr;
 
@@ -426,6 +469,15 @@ Dcl-Pr qsyrusra ExtPgm('QSYRUSRA');
   Error LikeDs(ERRC0100) Options(*Nopass);
 End-Pr;
 
+// Retrieve User Information (QSYRUSRI) API
+Dcl-Pr qsyrusri ExtPgm('QSYRUSRI');
+  Receiver Char(1) Const Options(*Varsize);
+  ReceiverLen Int(10) Const;
+  FormatName Char(8) Const;
+  UserName Char(10) Const;
+  Error LikeDs(ERRC0100) Options(*Nopass);
+End-Pr;
+
 // Get Environment Variable (QtmhGetEnv) API
 Dcl-Pr qtmhgetenv ExtProc('QtmhGetEnv');
   Receiver Char(1) Const Options(*Varsize);
@@ -451,6 +503,39 @@ Dcl-Pr qtmhwrstout ExtProc('QtmhWrStout');
   Error LikeDs(ERRC0100) Const;
 End-Pr;
 
+// Add User Index Entries (QUSADDUI) API
+Dcl-Pr qusaddui ExtPgm('QUSADDUI');
+  ReturnedLibraryName Char(10) Const;
+  EntriesAdded Int(10) Const;
+  QualifiedUserIndexName Char(20) Const;
+  InsertType Int(10) Const;
+  IndexEntries Char(1) Const Options(*Varsize);
+  IndexEntriesLength Int(10) Const;
+  EntryLengthsAndOffsets Char(1) Const Options(*Varsize);
+  NumberOfEntries Int(10) Const;
+  Error LikeDs(ERRC0100) Const;
+End-Pr;
+
+// Display Command Line Window (QUSCMDLN) API
+Dcl-Pr quscmdln ExtPgm('QUSCMDLN');
+End-Pr;
+
+// Create User Index (QUSCRTUI) API
+Dcl-Pr quscrtui ExtPgm('QUSCRTUI');
+  QualifiedUserIndexName Char(20) Const;
+  ExtendedAttribute Char(10) Const;
+  EntryLengthAttribute Char(1) Const;
+  EntryLength Int(10) Const;
+  KeyInsertion Char(1) Const;
+  KeyLength Int(10) Const;
+  ImmediateUpdate Char(1) Const;
+  Optimization Char(1) Const;
+  PublicAuthority Char(10) Const;
+  TextDescription Char(50) Const;
+  Replace Char(10) Options(*Nopass) Const;
+  Error LikeDs(ERRC0100) Options(*Nopass);
+End-Pr;
+
 // Create User Space (QUSCRTUS) API
 Dcl-Pr quscrtus ExtPgm('QUSCRTUS');
   QualifiedUserSpaceName Char(20) Const;
@@ -463,20 +548,26 @@ Dcl-Pr quscrtus ExtPgm('QUSCRTUS');
   Error LikeDs(ERRC0100) Options(*Nopass);
 End-Pr;
 
+// Delete User Index (QUSDLTUI) API
+Dcl-Pr qusdltui ExtPgm('QUSDLTUI');
+  QualifiedUserIndexName Char(20) Const;
+  Error LikeDs(ERRC0100);
+End-Pr;
+
 // Delete User Space (QUSDLTUS) API
 Dcl-Pr qusdltus ExtPgm('QUSDLTUS');
   QualifiedUserSpaceName Char(20) Const;
   Error LikeDs(ERRC0100);
 End-Pr;
 
-// List Database File Members (QUSLMBR) API
-Dcl-Pr quslmbr ExtPgm('QUSLMBR');
+// List Fields (QUSLFLD) API
+Dcl-Pr quslfld ExtPgm('QUSLFLD');
   QualifiedUserSpaceName Char(20) Const;
   FormatName Char(8) Const;
-  QualifiedFileName Char(20) Const;
-  Member Char(10) Const;
-  Override Char(1) Const;
-  Error LikeDs(ERRC0100);  
+  ObjectNameAndLibrary Char(20) Const;
+  RecordFormat Char(10) Const;
+  OverrideProcessing Char(1) Const;
+  Error LikeDs(ERRC0100) Options(*Nopass);  
 End-Pr;
 
 // List Job (QUSLJOB) API
@@ -491,12 +582,31 @@ Dcl-Pr qusljob ExtPgm('QUSLJOB');
   KeysOfFields Char(4) Const Options(*NoPass:*Varsize);
 End-Pr;
 
+// List Database File Members (QUSLMBR) API
+Dcl-Pr quslmbr ExtPgm('QUSLMBR');
+  QualifiedUserSpaceName Char(20) Const;
+  FormatName Char(8) Const;
+  QualifiedFileName Char(20) Const;
+  Member Char(10) Const;
+  Override Char(1) Const;
+  Error LikeDs(ERRC0100);  
+End-Pr;
+
 // List Objects (QUSLOBJ) API
 Dcl-Pr quslobj ExtPgm('QUSLOBJ');
   QualifiedUserSpaceName Char(20) Const;
   FormatName Char(8) Const;
   ObjectNameAndLibrary Char(20) Const;
   ObjectType Char(10) Const;
+  Error LikeDs(ERRC0100) Options(*Nopass);  
+End-Pr;
+
+// List Record Formats (QUSLRCD) API
+Dcl-Pr quslrcd ExtPgm('QUSLRCD');
+  QualifiedUserSpaceName Char(20) Const;
+  FormatName Char(8) Const;
+  ObjectNameAndLibrary Char(20) Const;
+  OverrideProcessing Char(1) Const;
   Error LikeDs(ERRC0100) Options(*Nopass);  
 End-Pr;
 
@@ -527,11 +637,39 @@ Dcl-Pr qusrobjd ExtPgm('QUSROBJD');
   Error LikeDs(ERRC0100) Options(*Nopass);
 End-Pr;
 
+// Retrieve User Index Entries (QUSRTVUI) API
+Dcl-Pr qusrtvui ExtPgm('QUSRTVUI');
+  Receiver Char(1) Const Options(*Varsize);
+  ReceiverLen Int(10) Const;
+  EntryLengthsAndOffsets Char(1) Const Options(*Varsize);
+  LengthOfEntryLengthsAndOffsets Int(10) Const;
+  NumberOfEntries Int(10) Const;
+  ReturnedLibraryName Char(10) Const;
+  QualifiedUserIndexName Char(20) Const;
+  Format Char(8) Const;
+  MaximumNumberOfEntries Int(10) Const;
+  SearchType Int(10) Const;
+  SearchCriteria Char(1) Const Options(*Varsize);
+  SearchCriteriaLength Int(10) Const;
+  SearchCriteriaOffset Int(10) Const;
+  Error LikeDs(ERRC0100) Options(*Nopass);
+End-Pr;
+
 // List Active Subsystems (QWCLASBS) API
 Dcl-Pr qwclasbs ExtPgm('QWCLASBS');
   QualifiedUserSpaceName Char(20) Const;
   FormatName Char(8) Const;
   Error LikeDs(ERRC0100) Options(*Nopass);
+End-Pr;
+
+// List Object Locks (QWCLOBJL) API
+Dcl-Pr qwclobjl ExtPgm('QWCLOBJL');
+  QualifiedUserSpaceName Char(20) Const;
+  FormatName Char(8) Const;
+  QualifiedObjectName Char(20) Const;
+  ObjectType Char(10) Const;
+  MemberName Char(10) Const;
+  Error LikeDs(ERRC0100);
 End-Pr;
 
 // Retrieve Network Attributes (QWCRNETA) API
@@ -540,6 +678,16 @@ Dcl-Pr qwcrneta ExtPgm('QWCRNETA');
   ReceiverLength Int(10) Const;
   NumberOfAttributes Int(10) Const;
   ArrayOfAttributes Char(2000) Const Options(*Varsize);
+  Error LikeDs(ERRC0100);
+End-Pr;
+
+// Retrieve Data Area (QWCRDTAA) API
+Dcl-Pr qwcrdtaa ExtPgm('QWCRDTAA');
+  Receiver Char(2036) Const Options(*Varsize);
+  ReceiverLength Int(10) Const;
+  QualifiedDataAreaName Char(20) Const;
+  Start Int(10) Const;
+  Length Int(10) Const;
   Error LikeDs(ERRC0100);
 End-Pr;
 
@@ -588,6 +736,14 @@ Dcl-Pr qwvrcstk ExtPgm('QWVRCSTK');
   JobIdInfo Char(1) Options(*Varsize);
   JobIdInfoFormatName Char(8) Const;
   Error LikeDs(ERRC0100);
+End-Pr;
+
+// QXXCHGDA() - Change Data Area
+Dcl-Pr qxxchgda ExtPgm('QXXCHGDA');
+  QualifiedDataAreaName Char(20) Const;
+  Start Int(10) Const;
+  Length Int(10) Const;
+  Data Char(2000) Const Options(*Varsize);
 End-Pr;
 
 // Change Server Information (QZLSCHSI) API
@@ -651,6 +807,11 @@ End-Pr;
 Dcl-Pr strstr Pointer ExtProc('strstr');
   Text1 Pointer Value;
   Text2 Pointer Value;
+End-Pr;
+
+// Prototype to C "tmpnam" function
+Dcl-Pr tmpnam Pointer ExtProc('tmpnam');
+  FileName Pointer Value;
 End-Pr;
 
 // Prototype to C "tolower" function

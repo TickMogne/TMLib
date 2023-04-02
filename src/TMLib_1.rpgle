@@ -5,6 +5,56 @@ Ctl-Opt Nomain;
 /include TMApi_Inc.rpgle
 /include TMLib_Inc.rpgle
 
+Dcl-Proc CenterText Export;
+  Dcl-Pi CenterText Char(2000);
+    Text Char(2000) Const Options(*Varsize);
+    Length Int(10) Const;
+  End-Pi; 
+  Dcl-S e Int(10);
+  Dcl-S s Int(10);
+  Dcl-S o Int(10);
+  Dcl-S Temp Char(2000); 
+
+  s = 1;
+  DoW s <= Length And %Subst(Text: s: 1) = ' ';
+    s = s + 1;
+  EndDo;
+  e = Length;
+  DoW e > 0 And %Subst(Text: e: 1) = ' ';
+    e = e - 1;
+  EndDo;
+
+  Temp = *Blanks;
+  o = %Int((Length-(e-s+1))/2);
+  Dow s <= e;
+    %Subst(Temp: o: 1) = %Subst(Text: s: 1);
+    o = o + 1;
+    s = s + 1;
+  EndDo;
+
+  Return Temp;
+End-Proc;
+
+Dcl-Proc ChangeDataArea Export;
+  Dcl-Pi ChangeDataArea;
+    QualifiedDataAreaName Char(20) Const;
+    Start Int(10) Const;
+    Length Int(10) Const;
+    Data Char(2000) Const Options(*Varsize);    
+    Error LikeDs(ERRC0100);
+  End-Pi;
+
+  Clear Error;  
+
+  Monitor;
+    qxxchgda(QualifiedDataAreaName: Start: Length: Data);
+  On-Error;
+    Error.ExceptionId = 'CPF9898';
+    Error.BytesAvailable = 16 + %Len(%Trim(ProgramStatus.ExceptionText));
+    Error.ExceptionData = ProgramStatus.ExceptionText;
+  EndMon;
+End-Proc;
+
 Dcl-Proc ConvertByteToHex Export;
   Dcl-Pi ConvertByteToHex Char(2);
     Byte Uns(3) Const;
@@ -60,6 +110,29 @@ Dcl-Proc CreateError Export;
   Return Error;
 End-Proc;
 
+Dcl-Proc CreateQualifiedTempFileName Export;
+  Dcl-Pi CreateQualifiedTempFileName Char(20);
+  End-Pi;
+
+  Dcl-S FileName Char(16);
+  Dcl-S QualifiedFileName Char(20) Inz(*Blanks);
+  tmpnam(%Addr(FileName));
+  %Subst(QualifiedFileName: 1: 10) = %Subst(FileName: 7: 10);
+  %Subst(QualifiedFileName: 11: 5) = %Subst(FileName: 1: 5);
+
+  Return QualifiedFileName;
+End-Proc;
+
+Dcl-Proc CreateTempFileName Export;
+  Dcl-Pi CreateTempFileName Char(16);
+  End-Pi; 
+
+  Dcl-S FileName Char(16);
+  tmpnam(%Addr(FileName));
+
+  Return FileName;
+End-Proc;
+
 Dcl-Proc CreateUserSpace Export;
   Dcl-Pi CreateUserSpace;
     UserSpaceName Char(20) Const;
@@ -109,6 +182,98 @@ Dcl-Proc EscapeMessage Export;
   EndIf;
 End-Proc;
 
+Dcl-Proc ExecuteCommand Export;
+  Dcl-Pi ExecuteCommand;
+    Command Char(65535) Const Options(*Varsize);
+    Error LikeDs(ERRC0100);
+  End-Pi;
+  Dcl-S UserSpaceName Char(20);
+  Dcl-Ds ErrorLocal LikeDs(ERRC0100);
+  Dcl-Ds JSLT0100;
+    *N Int(10) Pos(1) Inz(10);
+    *N Char(10) Pos(5) Inz('*PRV');
+    *N Char(26) Pos(15) Inz('*');
+    *N Char(16) Pos(41) Inz(*Blanks);
+    *N Char(4) Pos(57) Inz(x'FFFFFFFF');
+    *N Int(10) Pos(61) Inz(0);
+    *N Int(10) Pos(65) Inz(0);
+    *N Int(10) Pos(69) Inz(84);
+    *N Int(10) Pos(73) Inz(1);
+    *N Int(10) Pos(77) Inz(88);
+    *N Int(10) Pos(81) Inz(1);
+    *N Int(10) Pos(85) Inz(0201);
+    *N Char(1) Pos(89) Inz('*');
+  End-Ds;
+  Dcl-S UserSpaceDataPointer Pointer;
+  Dcl-Ds UserSpaceHeader LikeDs(UserSpaceHeader_Ds) Based(UserSpaceDataPointer);
+  Dcl-S UserSpaceEntryPointer Pointer;
+  Dcl-Ds LJOB0100 Len(2000) Based(UserSpaceEntryPointer) Qualified;
+    OffsetNextExtry Int(10) Pos(1);
+    OffsetFieldsReturned Int(10) Pos(5);
+    MessageId Char(7) Pos(17);
+  End-Ds;
+  Dcl-S FieldsPointer Pointer;
+  Dcl-Ds Fields Len(2032) Based(FieldsPointer) Qualified;
+    DataLength Int(10) Pos(29);
+    Data Char(2000) Pos(33);
+  End-Ds; 
+  Dcl-S i Int(10);
+
+  // Default: no error
+  Error.BytesAvailable = 0;
+
+  // Try to execute the command
+  Monitor;
+    qcmdexc(%Trim(Command): %Len(%Trim(Command)));
+  On-Error;
+    // Create user space
+    UserSpaceName = CreateQualifiedTempFileName();
+    CreateUserSpace(UserSpaceName: ErrorLocal);
+
+    // List the last 10 job log messages 
+    qmhljobl(UserSpaceName: 'LJOB0100': JSLT0100: %Size(JSLT0100): 'JSLT0100': ErrorLocal);
+    If (ErrorLocal.BytesAvailable > 0); // Check error
+      EscapeMessage(ErrorLocal);
+      Return;
+    EndIf;
+
+    // Retrieve the user space pointer
+    qusptrus(UserSpaceName: UserSpaceDataPointer: ErrorLocal);
+    If (ErrorLocal.BytesAvailable > 0); // Check error
+      EscapeMessage(ErrorLocal);
+      Return;
+    EndIf;
+
+    // Init the first entry pointer
+    UserSpaceEntryPointer = UserSpaceDataPointer + UserSpaceHeader.OffsetListData;
+
+    If UserSpaceHeader.NumberOfEntries > 0;
+      i = 1;     
+      Dow i <= UserSpaceHeader.NumberOfEntries;
+
+        If LJOB0100.MessageId <> 'CPF0006' And LJOB0100.MessageId <> 'CPF0001';
+          FieldsPointer = UserSpaceDataPointer + LJOB0100.OffsetFieldsReturned;
+          Error.ExceptionId = LJOB0100.MessageId;
+          Error.ExceptionData = %Subst(Fields.Data: 1: Fields.DataLength);
+          Error.BytesAvailable = 16 + Fields.DataLength;
+          Leave;
+        EndIf;
+
+        // Next entry pointer
+        UserSpaceEntryPointer = UserSpaceDataPointer + LJOB0100.OffsetNextExtry;
+      EndDo;
+    EndIf;
+
+    If Error.BytesAvailable = 0;
+      Error.ExceptionId = 'CPF0006';
+      Error.BytesAvailable = 16;
+    EndIf;
+
+    // Delete user space
+    DeleteUserSpace(UserSpaceName: ErrorLocal);
+  EndMon;
+End-Proc;
+
 Dcl-Proc GetErrno Export;
   Dcl-Pi GetErrno Int(10);
   End-Pi;
@@ -128,6 +293,7 @@ Dcl-Proc GetMessageText Export;
     MessageId Char(7) Const;
     Data Char(1) Const Options(*Varsize:*Nopass);
     DataLen Int(10) Const Options(*Nopass);
+    MessageFile Char(20) Const Options(*Nopass);
   End-Pi;
   Dcl-Ds RTVM0100 Len(2024) Qualified;
     MessageLenRet Int(10) Pos(9);
@@ -135,23 +301,28 @@ Dcl-Proc GetMessageText Export;
   End-Ds;
   Dcl-Ds Error LikeDs(ERRC0100);
   Dcl-S Ret Char(2000) Inz(*Blanks);
-  Dcl-S UsedData Char(65535);
-  Dcl-S UsedDataLen Int(10);
+  Dcl-S UsedData Char(65535) Inz('');
+  Dcl-S UsedDataLen Int(10) Inz(0);
+  Dcl-S UsedMessageFile Char(20) Inz('QCPFMSG   *LIBL');
 
-  If (%Parms() = 1);
-    UsedData = '';
-    UsedDataLen = 0;
-  ElseIf (%Parms() = 2);
+  If (%Parms() >= 2);
     UsedData = Data;
     UsedDataLen = %Len(%Trim(UsedData));
-  ElseIf
-    UsedData = Data;
+  EndIf;
+  If (%Parms() >= 3);
     UsedDataLen = DataLen;
   EndIf;
+  If (%Parms() >= 4);
+    UsedMessageFile = MessageFile;
+  EndIf;
 
-  qmhrtvm(RTVM0100: %Size(RTVM0100): 'RTVM0100': MessageId: 'QCPFMSG   *LIBL': UsedData: UsedDataLen: '*YES': '*NO': Error);
+  qmhrtvm(RTVM0100: %Size(RTVM0100): 'RTVM0100': MessageId: UsedMessageFile: UsedData: UsedDataLen: '*YES': '*NO': Error);
 
-  memcpy(%Addr(Ret): %Addr(RTVM0100.Message): RTVM0100.MessageLenRet);
+  If (Error.BytesAvailable = 0);
+    memcpy(%Addr(Ret): %Addr(RTVM0100.Message): RTVM0100.MessageLenRet);
+  Else;
+    Ret = '????';
+  EndIf;
 
   Return Ret;
 
@@ -721,6 +892,25 @@ Dcl-Proc MemValChar Export;
   Ptr = Address + Index;
 
   Return Ret;
+End-Proc;
+
+Dcl-Proc RetrieveDataArea Export;
+  Dcl-Pi RetrieveDataArea Char(2000);
+    QualifiedDataAreaName Char(20) Const;
+    Start Int(10) Const;
+    Length Int(10) Const;   
+    Error LikeDs(ERRC0100);
+  End-Pi;
+  Dcl-Ds DataArea Len(2036) Qualified;
+    Value Char(2000) Pos(37);
+  End-Ds;
+
+  qwcrdtaa(DataArea: %Size(DataArea): QualifiedDataAreaName: -1: 2000: Error);
+  If (Error.BytesAvailable = 0); // Check error
+    Return %Subst(DataArea.Value: Start: Length);
+  Else;
+    Return *Blanks;
+  EndIf;
 End-Proc;
 
 Dcl-Proc Upper Export;
